@@ -5,11 +5,11 @@ ashafahi @ March 11 2018
 """
 import numpy as np
 from sklearn.model_selection import train_test_split
-import tensorflow as tf
+import tensorflow
 import sys
 import imageio
 import matplotlib.pyplot as plt
-from scipy.ndimage import imread
+from imageio import imread
 from scipy import misc
 from os import listdir
 from tensorflow.python.platform import gfile
@@ -17,8 +17,9 @@ from scipy.spatial.distance import cdist
 from datetime import datetime
 import os
 
-
-
+tf = tensorflow.compat.v1
+tf.disable_v2_behavior()
+# tf.compat.v1.disable_eager_execution()
 
 
 def load_images_from_directory(Specie, directory):
@@ -77,7 +78,8 @@ def create_graph(graphDir=None):
     # if graph directory is not given, it is the default
     if graphDir == None:
         graphDir = './inceptionModel/inception-2015-12-05/classify_image_graph_def.pb'
-    with tf.Session() as sess:
+    
+    with tf.compat.v1.Session() as sess:
         with gfile.FastGFile(graphDir, 'rb') as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
@@ -105,7 +107,7 @@ def get_feat_reps(X,class_t):
     input_tensor_name = 'DecodeJpeg:0'
 
     #get a session and create the graph
-    sess = tf.Session()
+    sess = tf.compat.v1.Session()
     create_graph()
 
     #get needed tensors
@@ -148,7 +150,7 @@ def id_duplicates_of_training_from_test(X_test,X_training, threshold = 3.5):
         # print distsToTargs
         report_inds = np.argwhere(distsToTargs <= threshold)
         if len(report_inds) > 0:
-            print report_inds
+            print(report_inds)
             print(distsToTargs[0][report_inds])
         if len(np.argwhere(distsToTargs == 0.)) > 0:
             list_ind.append(i)
@@ -191,8 +193,8 @@ def load_bottleNeckTensor_data(directory=None, saveEm=False, random_state=123, t
     #load the data
     dog_x_feats = np.load(dog_X_feats)
     fish_x_feats = np.load(fish_X_feats)
-    allFishes = np.load(allFishes)
-    allDogs = np.load(allDogs)
+    allFishes = np.load(allFishes, allow_pickle=True)
+    allDogs = np.load(allDogs, allow_pickle=True)
     
     #do train and test split number of training dogs and number of training fishes = 800 from each class
     x_d_tr, x_d_tst, y_d_tr, y_d_tst, inp_d_tr, inp_d_tst = train_test_split(dog_x_feats, np.zeros(len(dog_x_feats)), allDogs ,train_size=train_size, random_state=random_state)
@@ -212,7 +214,7 @@ def load_bottleNeckTensor_data(directory=None, saveEm=False, random_state=123, t
 
     #remove the duplicates of the test data which are already present in the training data
     ids_for_test_removal = id_duplicates_of_training_from_test(X_test=X_tst_feats,X_training=X_tr_feats, threshold = 3.5)
-    print ids_for_test_removal
+    print(ids_for_test_removal)
     #sort the ids in descending order
     ids_for_test_removal.sort(reverse=True)
     for k in ids_for_test_removal:
@@ -298,7 +300,7 @@ def do_optimization(targetImg, baseImg, MaxIter=200,coeffSimInp=0.25, saveInteri
     print('coeff_sim_inp is:', coeff_sim_inp)
 
     #load the inception v3 graph
-    sess = tf.Session()
+    sess = tf.compat.v1.Session()
     graph = create_graph()
 
     #add some of the needed operations
@@ -489,7 +491,7 @@ def train_last_layer_of_inception(targetFeatRep,poisonInpImage,poisonClass,X_tr,
     
     #do initializations
     tf.reset_default_graph()                                    #reset the default graph to free up memory
-    sess = tf.Session()                                         #get session
+    sess = tf.compat.v1.Session()                                         #get session
     random_permutation = np.arange(len(X_tr)+1)                 #for training - we add one to the number of training data to account for the poison
     
     #based on whether we are doing cold start or warm start, load the appropriate graph

@@ -120,13 +120,15 @@ def do_train(sess,saver,X_input, Y_input, X_validation, Y_validation):
     
 
 
-import tensorflow as tf
+import tensorflow
+tf = tensorflow.compat.v1
+tf.disable_eager_execution()
 tf.reset_default_graph()
 sess = tf.Session()
 graph = create_graph()
 bottleneck_tensor = graph.get_tensor_by_name(BOTTLENECK_TENSOR_NAME+':0')
 
-X_Bottleneck = tf.placeholder(tf.float32,shape=[None, BOTTLENECK_TENSOR_SIZE], name="X_bottleneck")
+X_Bottleneck = tf.placeholder(tf.float32,shape=[None, BOTTLENECK_TENSOR_SIZE], name="X_bottleneck", )
 #placeholder for true labels
 Y_true = tf.placeholder(tf.float32,[None, len(classes)],name= "Y_true")
 

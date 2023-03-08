@@ -3,7 +3,7 @@ this script containts the one shot kill poison attack
 """
 import numpy as np
 from util_one_shot_kill_attack import *
-from scipy import misc
+from imageio import imsave
 import os
 
 #location of dog and fish directories
@@ -63,10 +63,11 @@ directorySaving = './Data/XY/'
 all_datas = ['X_tr_feats', 'X_tst_feats', 'X_tr_inp', 'X_tst_inp', 'Y_tr', 'Y_tst']
 X_tr = np.load(directorySaving+all_datas[0]+'.npy')
 X_test = np.load(directorySaving+all_datas[1]+'.npy')
-X_inp_tr = np.load(directorySaving+all_datas[2]+'.npy')
-X_inp_test = np.load(directorySaving+all_datas[3]+'.npy')
+X_inp_tr = np.load(directorySaving+all_datas[2]+'.npy', allow_pickle=True)
+X_inp_test = np.load(directorySaving+all_datas[3]+'.npy', allow_pickle=True)
 Y_tr = np.load(directorySaving+all_datas[4]+'.npy')
 Y_test = np.load(directorySaving+all_datas[5]+'.npy')
+np.save(directorySaving+all_datas[5]+'_10.npy', Y_test[:10])
 print('done loading data i.e. the train-test split!')
 
 
@@ -76,11 +77,11 @@ print('done loading data i.e. the train-test split!')
 #some intializations before we actually make the poisons
 allPoisons = []
 alldiffs = []
-directoryForPoisons = './poisonImages/'
+directoryForPoisons = './poisonImg/'
 if not os.path.exists(directoryForPoisons):
 	os.makedirs(directoryForPoisons)
 
-for i in range(len(X_test)):
+for i in range(10):
 	diff = 100
 	maxTriesForOptimizing = 10
 	counter = 0
@@ -111,7 +112,7 @@ for i in range(len(X_test)):
 	allPoisons.append(img)
 	alldiffs.append(diff)
 	name = "%d_%.5f"%(i,diff)
-	misc.imsave(directoryForPoisons+name+'.jpeg', img)
+	imsave(directoryForPoisons+name+'.jpeg', img)
 	
 allPoisons = np.array(allPoisons)
 alldiffs = np.array(alldiffs)

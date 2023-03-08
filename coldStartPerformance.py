@@ -26,10 +26,11 @@ directorySaving = './Data/XY/'
 all_datas = ['X_tr_feats', 'X_tst_feats', 'X_tr_inp', 'X_tst_inp', 'Y_tr', 'Y_tst']
 X_tr = np.load(directorySaving+all_datas[0]+'.npy')
 X_test = np.load(directorySaving+all_datas[1]+'.npy')
-X_inp_tr = np.load(directorySaving+all_datas[2]+'.npy')
-X_inp_test = np.load(directorySaving+all_datas[3]+'.npy')
+X_inp_tr = np.load(directorySaving+all_datas[2]+'.npy', allow_pickle=True)
+X_inp_test = np.load(directorySaving+all_datas[3]+'.npy', allow_pickle=True)
 Y_tr = np.load(directorySaving+all_datas[4]+'.npy')
 Y_test = np.load(directorySaving+all_datas[5]+'.npy')
+Y_test_10 = np.load(directorySaving+all_datas[5]+'_10.npy')
 print('done loading data!')
 
 
@@ -48,7 +49,7 @@ for targID, thePoison in enumerate(Poises):
 	numPoisonCorr += 1*poison_corr_pred[0]
 print('##############################')
 print('out of %d poisons, %d got correctly classified!'%(len(Poises),numPoisonCorr))
-print('out of %d targets, %d got misclassified!'%(len(Y_test),len(Y_test) - numNotMiscclassified))
+print('out of %d targets, %d got misclassified!'%(len(Y_test_10),len(Y_test_10) - numNotMiscclassified))
 other_class_prob = np.array(other_class_prob)
 np.save('Wrong_ClassProb_targ.npy',other_class_prob)
 poison_corr_class_prob = np.array(poison_corr_class_prob)
